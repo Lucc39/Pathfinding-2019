@@ -40,13 +40,6 @@ for(int i = 0; i < xPos.size(); i++) //Iterates over all xPos values (the size o
   }
 }
 
-fill(0, 255, 0);
-for(int i = 0; i < possiblePos.size(); i++)
-{
-  int[] tempPos = possiblePos.get(i);
-  rect(tempPos[0] * gridDim, tempPos[1] * gridDim, gridDim, gridDim); //Draws the possible positions in GREEN.
-}
-
 possiblePos = bestF(possiblePos); //Leaves only the nodes with the best F value using the bestF function.
 
 if(possiblePos.size() == 1) //If the size of the list is 1, there is only one possible node left. In that case, the program has nothing left to eliminate and has no choice but to move to that node.
