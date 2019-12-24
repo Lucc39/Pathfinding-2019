@@ -132,97 +132,97 @@ static boolean contains(List<int[]> list, int[] arr) //Returns whether an ArrayL
 
 public int indexOf(List<int[]> list, int[] arr) //Returns the index of an Array inside an ArrayList or -1 if the Array does not exist inside the ArrayList
 {
-	for(int i = 0; i < list.size(); i++)
-	{
-		if(Arrays.equals(list.get(i), arr)) return i;
-	}
-	
-	return -1;
+for(int i = 0; i < list.size(); i++)
+{
+	if(Arrays.equals(list.get(i), arr)) return i;
+}
+
+return -1;
 }
 
 static List<int[]> bestF(List<int[]> possiblePos) //Returns a list of all possible positions with the best F values.
+{
+	//Stage 1: the function will find the best F value.
+	int bestF = gridDim; //Sets the bestF to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
+	for(int i = 0; i < possiblePos.size(); i++)
 	{
-		//Stage 1: the function will find the best F value.
-		int bestF = gridDim; //Sets the bestF to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
-		for(int i = 0; i < possiblePos.size(); i++)
+		if(f.get(i) < bestF)
 		{
-			if(f.get(i) < bestF)
-			{
-				bestF = f.get(i);
-			}
+			bestF = f.get(i);
 		}
-		
-		int size = possiblePos.size(); //Saves the current size of the list.
-		
-		//Stage 2: the function will find all possible positions that math the best F value and re-adds them to the possiblePos list.
-		for(int i = 0; i < size; i++)
-		{
-			if(f.get(i) == bestF)
-			{
-				possiblePos.add(possiblePos.get(i));
-			}
-		}
-		
-		//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best F value.
-		if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
-		
-		return possiblePos; //The function now returns the possiblePos list.
 	}
-	
-	static List<int[]> bestH(List<int[]> possiblePos) //Returns a list of all possible positions with the best H values.
+
+	int size = possiblePos.size(); //Saves the current size of the list.
+
+	//Stage 2: the function will find all possible positions that math the best F value and re-adds them to the possiblePos list.
+	for(int i = 0; i < size; i++)
 	{
-		//Stage 1: the function will find the best H value.
-		int bestH = gridDim; //Sets the bestH to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
-		for(int i = 0; i < possiblePos.size(); i++)
+		if(f.get(i) == bestF)
 		{
-			if(h.get(i) < bestH)
-			{
-				bestH = h.get(i);
-			}
+			possiblePos.add(possiblePos.get(i));
 		}
-		
-		int size = possiblePos.size(); //Saves the current size of the list.
-		
-		//Stage 2: the function will find all possible positions that math the best H value and re-adds them to the possiblePos list.
-		for(int i = 0; i < size; i++)
-		{
-			if(h.get(i) == bestH)
-			{
-				possiblePos.add(possiblePos.get(i));
-			}
-		}
-		
-		//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best H value.
-		if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
-		
-		return possiblePos; //The function now returns the possiblePos list.
 	}
-	
-	static List<int[]> bestG(List<int[]> possiblePos) //Returns a list of all possible positions with the best G values.
+
+	//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best F value.
+	if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
+
+	return possiblePos; //The function now returns the possiblePos list.
+}
+
+static List<int[]> bestH(List<int[]> possiblePos) //Returns a list of all possible positions with the best H values.
+{
+	//Stage 1: the function will find the best H value.
+	int bestH = gridDim; //Sets the bestH to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
+	for(int i = 0; i < possiblePos.size(); i++)
 	{
-		//Stage 1: the function will find the best G value.
-		int bestG = gridDim; //Sets the bestG to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
-		for(int i = 0; i < possiblePos.size(); i++)
+		if(h.get(i) < bestH)
 		{
-			if(g.get(i) < bestG)
-			{
-				bestG = g.get(i);
-			}
+			bestH = h.get(i);
 		}
-		
-		int size = possiblePos.size(); //Saves the current size of the list.
-		
-		//Stage 2: the function will find all possible positions that math the best G value and re-adds them to the possiblePos list.
-		for(int i = 0; i < size; i++)
-		{
-			if(g.get(i) == bestG)
-			{
-				possiblePos.add(possiblePos.get(i));
-			}
-		}
-		
-		//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best G value.
-		if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
-		
-		return possiblePos; //The function now returns the possiblePos list.
 	}
+
+	int size = possiblePos.size(); //Saves the current size of the list.
+
+	//Stage 2: the function will find all possible positions that math the best H value and re-adds them to the possiblePos list.
+	for(int i = 0; i < size; i++)
+	{
+		if(h.get(i) == bestH)
+		{
+			possiblePos.add(possiblePos.get(i));
+		}
+	}
+
+	//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best H value.
+	if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
+
+	return possiblePos; //The function now returns the possiblePos list.
+}
+
+static List<int[]> bestG(List<int[]> possiblePos) //Returns a list of all possible positions with the best G values.
+{
+	//Stage 1: the function will find the best G value.
+	int bestG = gridDim; //Sets the bestG to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
+	for(int i = 0; i < possiblePos.size(); i++)
+	{
+		if(g.get(i) < bestG)
+		{
+			bestG = g.get(i);
+		}
+	}
+
+	int size = possiblePos.size(); //Saves the current size of the list.
+
+	//Stage 2: the function will find all possible positions that math the best G value and re-adds them to the possiblePos list.
+	for(int i = 0; i < size; i++)
+	{
+		if(g.get(i) == bestG)
+		{
+			possiblePos.add(possiblePos.get(i));
+		}
+	}
+
+	//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best G value.
+	if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
+
+	return possiblePos; //The function now returns the possiblePos list.
+}
