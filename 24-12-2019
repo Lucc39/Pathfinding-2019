@@ -1,0 +1,228 @@
+/*Note: Positions refer to nodes. I added the 'dirs', 'contains', 'indexOf, 'bestF', 'bestG' and 'bestH' methods bellow all of the code. 'bestF', 'bestG' and 'bestH' are supposed to be the same.
+
+Theese are all of the variables used:
+  static List<Integer> xPos = new ArrayList<Integer>(),
+	yPos = new ArrayList<Integer>(),
+	g = new ArrayList<Integer>(),
+	h = new ArrayList<Integer>(),
+	f = new ArrayList<Integer>();
+	
+	static List<int[]> prevPos = new ArrayList<int[]>(),
+	blocks = new ArrayList<int[]>(),
+  borders = new ArrayList<int[]>(),
+	possiblePos = new ArrayList<int[]>(),
+*/
+
+//Main code:
+possiblePos.clear(); //Clears the possiblePos list so there won't be any bugs or performance issues.
+g.clear(); //Clears the g list so there won't be any bugs or performance issues.
+h.clear(); //Clears the h list so there won't be any bugs or performance issues.
+f.clear(); //Clears the f list so there won't be any bugs or performance issues.
+
+for(int i = 0; i < xPos.size(); i++) //Iterates over all xPos values (the size of xPos and yPos should be the same).
+{
+  int[][] surroundingPos = dirs(new int[] {xPos.get(i), yPos.get(i)}); //Creates a new two dimensional array out of all of the surrounding nodes of the current node using the 'dir' function.
+
+  for(int j = 0; j < surroundingPos.length; j++) //Iterates over all of the surrounding nodes of the current player's block.
+  {
+    if(!contains(prevPos, surroundingPos[j]) && !contains(blocks, surroundingPos[j]) && !contains(borders, surroundingPos[j])) //Checks if the current surrounding nodes does not collide with the blocks or the repeats previous nodes where the player has been.
+    {
+      possiblePos.add(surroundingPos[j]); //Adds the current surrounding nodes to the possiblePos list.
+
+      int GCost = Math.abs(xStartPos - surroundingPos[j][0] ) + Math.abs(yStartPos - surroundingPos[j][1]); //Distance of current possible node from the starting point.
+      int HCost = Math.abs(targetX - surroundingPos[j][0]) + Math.abs(targetY - surroundingPos[j][1]); //Distance of current possible node from the target.
+      int FCost = GCost + HCost; //The sum of the GCost and the HCost.
+
+      g.add(GCost); //Adds the GCost to the g list.
+      h.add(HCost); //Adds the HCost to the h list.
+      f.add(FCost); //Adds the FCost to the f list.
+    }
+  }
+}
+
+fill(0, 255, 0);
+for(int i = 0; i < possiblePos.size(); i++)
+{
+  int[] tempPos = possiblePos.get(i);
+  rect(tempPos[0] * gridDim, tempPos[1] * gridDim, gridDim, gridDim); //Draws the possible positions in GREEN.
+}
+
+possiblePos = bestF(possiblePos); //Leaves only the nodes with the best F value using the bestF function.
+
+if(possiblePos.size() == 1) //If the size of the list is 1, there is only one possible node left. In that case, the program has nothing left to eliminate and has no choice but to move to that node.
+{
+  int[] tempPos = possiblePos.get(0);
+  xPos.add(tempPos[0]);
+  yPos.add(tempPos[1]);
+
+} else { //If the size of the list isn't 1, there are a few possible nodes left. In that case, the program can still eliminate the nodes by checking who has the lowest H cost.
+  //The following 14 lines re-check the G, H and F cost of all possible nodes left (so that they would match the new possibleNodes list):
+  g.clear();
+  h.clear();
+  f.clear();
+
+  for(int i = 0; i < possiblePos.size(); i++)
+  {
+    int[] tempPos = possiblePos.get(i);
+    int GCost = Math.abs(xStartPos - tempPos[0] ) + Math.abs(yStartPos - tempPos[1]); //Distance of current possible node from the starting point.
+    int HCost = Math.abs(targetX - tempPos[0]) + Math.abs(targetY - tempPos[1]); //Distance of current possible node from the target.
+    int FCost = GCost + HCost; //The sum of the GCost and the HCost.
+
+    g.add(GCost); //Adds the GCost to the g list.
+    h.add(HCost); //Adds the HCost to the h list.
+    f.add(FCost); //Adds the FCost to the f list.
+  }
+
+  possiblePos = bestH(possiblePos); //Leaves only the positions with the best F value and H value using the bestH value.
+
+  if(possiblePos.size() == 1)
+  {
+    int[] tempPos = possiblePos.get(0);
+    xPos.add(tempPos[0]);
+    yPos.add(tempPos[1]);
+
+  } else {
+    //The following 14 lines re-check the G, H and F cost of all possible nodes left:
+    g.clear();
+    h.clear();
+    f.clear();
+
+    for(int i = 0; i < possiblePos.size(); i++)
+    {
+      int[] tempPos = possiblePos.get(i);
+      int GCost = Math.abs(xStartPos - tempPos[0] ) + Math.abs(yStartPos - tempPos[1]); //Distance of current item in the possibleNode list from the starting point.
+      int HCost = Math.abs(targetX - tempPos[0]) + Math.abs(targetY - tempPos[1]); //Distance of current item in the possibleNode from the target.
+      int FCost = GCost + HCost; //The sum of the GCost and the HCost.
+
+      g.add(GCost); //Adds the GCost to the g list.
+      h.add(HCost); //Adds the HCost to the h list.
+      f.add(FCost); //Adds the FCost to the f list.
+    }
+
+    possiblePos = bestG(possiblePos); //Leaves only the nodes with the best F value and H value using the bestH value.
+
+    int[] tempPos = possiblePos.get(0);
+    xPos.add(tempPos[0]);
+    yPos.add(tempPos[1]);
+  }
+}
+int[] tempArr = {xPos.get(xPos.size()-1), yPos.get(yPos.size()-1)}; //Adds the next node to the prevNodes list.
+prevPos.add(tempArr);
+bestPath.add(tempArr);
+
+//Methods:
+static int[][] dirs(int[] tempPos) //Takes a position and returns a two dimensional array which contains arrays of all of the surrounding positions.
+{
+  return new int[][] {
+      {tempPos[0] + 1, tempPos[1]}, //Right from the node.
+      {tempPos[0] - 1, tempPos[1]}, //Left from the node.
+      {tempPos[0], tempPos[1] - 1}, //Up from the node.
+      {tempPos[0], tempPos[1] + 1} //Down from the node.
+    };
+}
+
+static boolean contains(List<int[]> list, int[] arr) //Returns whether an ArrayList of Arrays contains a certain Array.
+{
+  for(int[] tempArr : list)
+  {
+    if(Arrays.equals(tempArr, arr)) return true;
+  }
+  return false;
+}
+
+public int indexOf(List<int[]> list, int[] arr) //Returns the index of an Array inside an ArrayList or -1 if the Array does not exist inside the ArrayList
+{
+	for(int i = 0; i < list.size(); i++)
+	{
+		if(Arrays.equals(list.get(i), arr)) return i;
+	}
+	
+	return -1;
+}
+
+static List<int[]> bestF(List<int[]> possiblePos) //Returns a list of all possible positions with the best F values.
+	{
+		//Stage 1: the function will find the best F value.
+		int bestF = gridDim; //Sets the bestF to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
+		for(int i = 0; i < possiblePos.size(); i++)
+		{
+			if(f.get(i) < bestF)
+			{
+				bestF = f.get(i);
+			}
+		}
+		
+		int size = possiblePos.size(); //Saves the current size of the list.
+		
+		//Stage 2: the function will find all possible positions that math the best F value and re-adds them to the possiblePos list.
+		for(int i = 0; i < size; i++)
+		{
+			if(f.get(i) == bestF)
+			{
+				possiblePos.add(possiblePos.get(i));
+			}
+		}
+		
+		//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best F value.
+		if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
+		
+		return possiblePos; //The function now returns the possiblePos list.
+	}
+	
+	static List<int[]> bestH(List<int[]> possiblePos) //Returns a list of all possible positions with the best H values.
+	{
+		//Stage 1: the function will find the best H value.
+		int bestH = gridDim; //Sets the bestH to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
+		for(int i = 0; i < possiblePos.size(); i++)
+		{
+			if(h.get(i) < bestH)
+			{
+				bestH = h.get(i);
+			}
+		}
+		
+		int size = possiblePos.size(); //Saves the current size of the list.
+		
+		//Stage 2: the function will find all possible positions that math the best H value and re-adds them to the possiblePos list.
+		for(int i = 0; i < size; i++)
+		{
+			if(h.get(i) == bestH)
+			{
+				possiblePos.add(possiblePos.get(i));
+			}
+		}
+		
+		//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best H value.
+		if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
+		
+		return possiblePos; //The function now returns the possiblePos list.
+	}
+	
+	static List<int[]> bestG(List<int[]> possiblePos) //Returns a list of all possible positions with the best G values.
+	{
+		//Stage 1: the function will find the best G value.
+		int bestG = gridDim; //Sets the bestG to be the gridDim, as the gridDim is the largest possible distance you'd have to travel.
+		for(int i = 0; i < possiblePos.size(); i++)
+		{
+			if(g.get(i) < bestG)
+			{
+				bestG = g.get(i);
+			}
+		}
+		
+		int size = possiblePos.size(); //Saves the current size of the list.
+		
+		//Stage 2: the function will find all possible positions that math the best G value and re-adds them to the possiblePos list.
+		for(int i = 0; i < size; i++)
+		{
+			if(g.get(i) == bestG)
+			{
+				possiblePos.add(possiblePos.get(i));
+			}
+		}
+		
+		//Stage 3: the function will remove all previous possiblePos values (as it knows the length of the list before the new values were added), leaving only the newly added possible positions which have the best G value.
+		if(possiblePos.size() > size) possiblePos.subList(0, size).clear();
+		
+		return possiblePos; //The function now returns the possiblePos list.
+	}
